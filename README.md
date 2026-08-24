@@ -46,4 +46,3 @@ Open http://localhost:8000 in a browser.
 Product images are served from `static/images/`. Copy the dataset image files into
 that directory (for example, `static/images/15970.jpg`) so they can be displayed
 by the search results.
-![Fashion Search UI](screenshots/screencapture-localhost-8000-2026-08-24-105229.png)
