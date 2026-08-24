@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AURA | AI Fashion Discovery</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    body {
+      background-color: #0d0f17;
+      color: #e2e8f0;
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    }
+
+    .hero-title-line1 {
+      font-size: 2.8rem;
+      font-weight: 900;
+      letter-spacing: 3px;
+      background: linear-gradient(135deg, #a855f7 0%, #ec4899 50%, #3b82f6 100%);
+      background: linear-gradient(135deg, #a855f7 0%, #ec4899 50%, #3b82f6 100%);
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      filter: drop-shadow(0 0 12px rgba(168, 85, 247, 0.5));
+      animation: pulseGlow 3s ease-in-out infinite alternate;
+    }
+
+    .hero-title-line2 {
+      font-size: 1.8rem;
+      font-weight: 800;
+      letter-spacing: 4px;
+      color: #94a3b8;
+      text-shadow: 0 0 10px rgba(148, 163, 184, 0.2);
+    }
+
+    @keyframes pulseGlow {
+      0% { filter: drop-shadow(0 0 8px rgba(168, 85, 247, 0.4)); }
+      100% { filter: drop-shadow(0 0 20px rgba(236, 72, 153, 0.8)); }
+    }
+
+    .glass-panel {
+      background: rgba(23, 27, 44, 0.75);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+    }
+
+    .btn-glow {
+      background: linear-gradient(135deg, #7c3aed 0%, #c026d3 100%);
+      box-shadow: 0 0 15px rgba(124, 58, 237, 0.4);
+      transition: all 0.3s ease;
+    }
+
+    .btn-glow:hover {
+      box-shadow: 0 0 25px rgba(192, 38, 212, 0.7);
+      transform: translateY(-1px);
+    }
+  </style>
+</head>
+<body class="min-h-screen pb-12">
+
+  <header class="py-10 text-center space-y-2">
+    <h1 class="hero-title-line1">VIRTUAL STYLIST</h1>
+    <div class="hero-title-line2">FASHION VISION</div>
+    <p class="text-slate-400 text-sm tracking-wide pt-2">
+      FIND PERFECT LOOKS WITH IMAGE & TEXT
+    </p>
+  </header>
+
+  <!-- Search Controls Container -->
+  <main class="max-w-6xl mx-auto px-4 space-y-8">
+    <div class="glass-panel rounded-2xl p-6 md:p-8 flex flex-col md:flex-row gap-6 items-center justify-between">
+      
+      <!-- Text Search Box -->
+      <div class="w-full md:w-1/2 space-y-2">
+        <label class="text-xs font-semibold uppercase tracking-wider text-purple-400">Search By Description</label>
+        <div class="flex gap-2">
+          <input type="text" id="searchInput" placeholder="e.g., elegant blue velvet shoes" 
+                 class="w-full px-4 py-3 rounded-xl bg-slate-900/80 border border-slate-700 text-white placeholder-slate-500 focus:outline-none focus:border-purple-500 transition">
+          <button onclick="performTextSearch()" class="btn-glow px-6 py-3 rounded-xl font-semibold text-white">
+            Search
+          </button>
+        </div>
+      </div>
+
+      <!-- Image Search Box -->
+      <div class="w-full md:w-1/2 space-y-2">
+        <label class="text-xs font-semibold uppercase tracking-wider text-pink-400">Search By Image</label>
+        <div class="flex gap-2">
+          <input type="file" id="imageInput" accept="image/*" 
+                 class="w-full px-3 py-2.5 rounded-xl bg-slate-900/80 border border-slate-700 text-slate-300 text-sm file:mr-4 file:py-1 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-purple-900/50 file:text-purple-300 hover:file:bg-purple-800">
+          <button onclick="performImageSearch()" class="btn-glow px-6 py-3 rounded-xl font-semibold text-white whitespace-nowrap">
+            Upload & Match
+          </button>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Status / Results Meta -->
+    <div id="statusMessage" class="text-right text-xs uppercase tracking-widest text-slate-400 pr-2">
+      CURATED STYLES READY
+    </div>
+
+    <!-- Results Grid -->
+    <div id="resultsGrid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-6">
+      <!-- Dynamic Results Will Render Here -->
+    </div>
+  </main>
+
+  <script>
+    async function performTextSearch() {
+      const query = document.getElementById('searchInput').value;
+      if (!query) return;
+      
+      document.getElementById('statusMessage').innerText = "SEARCHING CURATED CATALOG...";
+      try {
+        const response = await fetch(`/text-search?query=${encodeURIComponent(query)}&top_k=10`, { method: 'POST' });
+        const data = await response.json();
+        renderResults(data.results || []);
+      } catch (err) {
+        document.getElementById('statusMessage').innerText = "SEARCH ERROR";
+      }
+    }
+
+    async function performImageSearch() {
+      const fileInput = document.getElementById('imageInput');
+      if (!fileInput.files[0]) return;
+
+      const formData = new FormData();
+      formData.append('file', fileInput.files[0]);
+
+      document.getElementById('statusMessage').innerText = "MATCHING VISUAL EMBEDDINGS...";
+      try {
+        const response = await fetch('/image-search?top_k=10', { method: 'POST', body: formData });
+        const data = await response.json();
+        renderResults(data.results || []);
+      } catch (err) {
+        document.getElementById('statusMessage').innerText = "MATCHING ERROR";
+      }
+    }
+
+    function renderResults(products) {
+      const grid = document.getElementById('resultsGrid');
+      grid.innerHTML = '';
+      document.getElementById('statusMessage').innerText = `${products.length} CURATED STYLES FOUND`;
+
+      products.forEach(p => {
+        const card = document.createElement('div');
+        card.className = "glass-panel rounded-xl overflow-hidden hover:scale-[1.02] transition duration-300";
+        card.innerHTML = `
+          <div class="h-64 bg-white/5 overflow-hidden">
+            <img src="${p.image_url || p.image_path}" class="w-full h-full object-cover" onerror="this.src='https://via.placeholder.com/300?text=No+Image'">
+          </div>
+          <div class="p-3 text-xs space-y-1">
+            <div class="font-bold text-slate-200 truncate">${p.productDisplayName || p.articleType || 'Fashion Item'}</div>
+            <div class="text-purple-400 font-mono">${(p.similarity_score * 100).toFixed(1)}% Match</div>
+          </div>
+        `;
+        grid.appendChild(card);
+      });
+    }
+  </script>
+</body>
+</html>

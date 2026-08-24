@@ -1,0 +1,12 @@
+fastapi
+uvicorn
+transformers
+torch
+faiss-cpu
+pillow
+pandas
+numpy
+pydantic
+python-multipart
+pytest
+httpx
